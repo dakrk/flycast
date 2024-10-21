@@ -70,9 +70,14 @@ option(ENABLE_GDB_SERVER "Build with GDB debugging support" OFF)
 option(ENABLE_DC_PROFILER "Build with support for target machine (SH4) profiler" OFF)
 option(ENABLE_FC_PROFILER "Build with support for host app (Flycast) profiler" OFF)
 option(USE_DISCORD "Use Discord Presence API" OFF)
+option(USE_QT_DEBUGGER "Build with Qt GUI debugger" ON)
 
 if(IOS AND NOT LIBRETRO)
 	set(USE_VULKAN OFF CACHE BOOL "Force vulkan off" FORCE)
+endif()
+
+if(ANDROID OR IOS OR LIBRETRO OR WINDOWS_STORE)
+	set(USE_QT_DEBUGGER OFF CACHE BOOL "Force Qt debugger off" FORCE)
 endif()
 
 include(GNUInstallDirs)
@@ -1467,6 +1472,30 @@ if(ENABLE_GDB_SERVER)
 		core/debug/gdb_server.cpp)
 
 	target_compile_definitions(${PROJECT_NAME} PRIVATE GDB_SERVER)
+endif()
+
+if(USE_QT_DEBUGGER AND NOT LIBRETRO)
+	if(NOT LUA_FOUND)
+		# Well... not *yet* anyway
+		message(FATAL_ERROR "Qt debugger requires that Lua is available.")
+	endif()
+	
+	find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+	
+	target_sources(${PROJECT_NAME} PRIVATE
+		core/ui/debugger/debugger.cpp
+		core/ui/debugger/MainWindow.cpp
+	)
+
+	target_compile_definitions(${PROJECT_NAME} PRIVATE QT_DEBUGGER)
+
+	target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
+
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+		AUTOMOC ON
+		AUTORCC ON
+		AUTOUIC ON
+	)
 endif()
 
 if("arm" IN_LIST ARCHITECTURE AND NOT APPLE)

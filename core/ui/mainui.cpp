@@ -17,6 +17,7 @@
     along with Flycast.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "debugger/debugger.h"
 #include "mainui.h"
 #include "hw/pvr/Renderer_if.h"
 #include "gui.h"
@@ -91,6 +92,20 @@ void mainui_loop(bool forceStart)
 
 	while (mainui_enabled)
 	{
+#ifdef QT_DEBUGGER
+		/**
+		 * Ideally Qt stuff should probably be put in its own thread and not be tied to
+		 * mainui but not everything I interact with will be thread-safe and I genuinely
+		 * cannot be bothered any more
+		 */
+		qdbg::app->processEvents();
+
+		// Pathetic solution for high idle CPU usage when suspended in debugger and no UI showing
+		if (!emu.running()) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+#endif
+
 		fc_profiler::startThread("main");
 
 		mainui_rend_frame();

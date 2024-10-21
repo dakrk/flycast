@@ -18,6 +18,7 @@
 #define __STDC_FORMAT_MACROS 1
 #endif
 #include "build.h"
+#include "ui/debugger/debugger.h"
 #ifdef TARGET_UWP
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Globalization.DateTimeFormatting.h>
@@ -340,6 +341,10 @@ int main(int argc, char* argv[])
 	setupPath();
 	findKeyboardLayout();
 
+#ifdef QT_DEBUGGER
+	qdbg::init(argc, argv);
+#endif
+
 	if (flycast_init(argc, argv) != 0)
 		die("Flycast initialization failed");
 
@@ -357,7 +362,15 @@ int main(int argc, char* argv[])
 #endif
 	os_InstallFaultHandler();
 
+#ifdef QT_DEBUGGER
+	qdbg::show();
+#endif
+
 	mainui_loop();
+
+#ifdef QT_DEBUGGER
+	qdbg::uninit();
+#endif
 
 	flycast_term();
 	os_UninstallFaultHandler();

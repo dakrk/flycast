@@ -1,9 +1,10 @@
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS 1
 #endif
-#include "types.h"
 
 #if defined(__unix__)
+#include "ui/debugger/debugger.h"
+#include "types.h"
 #include "log/LogManager.h"
 #include "emulator.h"
 #include "ui/mainui.h"
@@ -39,7 +40,7 @@ void os_DoEvents()
 void common_linux_setup();
 
 // Find the user config directory.
-// $HOME/.config/flycast on linux
+// $HOME/.config/flycast-debugger on linux
 static std::string find_user_config_dir()
 {
 	std::string xdg_home;
@@ -55,7 +56,7 @@ static std::string find_user_config_dir()
 
 	if (!xdg_home.empty())
 	{
-		std::string fullpath = xdg_home + "/flycast/";
+		std::string fullpath = xdg_home + "/flycast-debugger/";
 		struct stat info;
 		if (flycast::stat(fullpath.c_str(), &info) != 0 || (info.st_mode & S_IFDIR) == 0)
 			// Create .config/flycast
@@ -68,7 +69,7 @@ static std::string find_user_config_dir()
 }
 
 // Find the user data directory.
-// $HOME/.local/share/flycast on linux
+// $HOME/.local/share/flycast-debugger on linux
 static std::string find_user_data_dir()
 {
 	std::string xdg_home;
@@ -84,7 +85,7 @@ static std::string find_user_data_dir()
 
 	if (!xdg_home.empty())
 	{
-		std::string fullpath = xdg_home + "/flycast/";
+		std::string fullpath = xdg_home + "/flycast-debugger/";
 		struct stat info;
 		if (flycast::stat(fullpath.c_str(), &info) != 0 || (info.st_mode & S_IFDIR) == 0)
 			// Create .local/share/flycast
@@ -114,12 +115,12 @@ static void addDirectoriesFromPath(std::vector<std::string>& dirs, const std::st
 
 // Find a file in the user and system config directories.
 // The following folders are checked in this order:
-// $HOME/.config/flycast
+// $HOME/.config/flycast-debugger
 // if XDG_CONFIG_DIRS is defined:
 //   <$XDG_CONFIG_DIRS>/flycast
 // else
-//   /etc/flycast/
-//   /etc/xdg/flycast/
+//   /etc/flycast-debugger/
+//   /etc/xdg/flycast-debugger/
 // .
 static std::vector<std::string> find_system_config_dirs()
 {
@@ -133,12 +134,12 @@ static std::vector<std::string> find_system_config_dirs()
 		xdg_home = (std::string)nowide::getenv("HOME") + "/.config";
 	if (!xdg_home.empty())
 		// XDG config locations
-		dirs.push_back(xdg_home + "/flycast/");
+		dirs.push_back(xdg_home + "/flycast-debugger/");
 
 	if (nowide::getenv("XDG_CONFIG_DIRS") != nullptr)
 	{
 		std::string path = (std::string)nowide::getenv("XDG_CONFIG_DIRS");
-		addDirectoriesFromPath(dirs, path, "/flycast/");
+		addDirectoriesFromPath(dirs, path, "/flycast-debugger/");
 	}
 	else
 	{
@@ -146,8 +147,8 @@ static std::vector<std::string> find_system_config_dirs()
 		const std::string config_dir(FLYCAST_SYSCONFDIR);
 		dirs.push_back(config_dir);
 #endif
-		dirs.push_back("/etc/flycast/"); // This isn't part of the XDG spec, but much more common than /etc/xdg/
-		dirs.push_back("/etc/xdg/flycast/");
+		dirs.push_back("/etc/flycast-debugger/"); // This isn't part of the XDG spec, but much more common than /etc/xdg/
+		dirs.push_back("/etc/xdg/flycast-debugger/");
 	}
 	dirs.push_back("./");
 
@@ -156,12 +157,12 @@ static std::vector<std::string> find_system_config_dirs()
 
 // Find a file in the user data directories.
 // The following folders are checked in this order:
-// $HOME/.local/share/flycast
+// $HOME/.local/share/flycast-debugger
 // if XDG_DATA_DIRS is defined:
-//   <$XDG_DATA_DIRS>/flycast
+//   <$XDG_DATA_DIRS>/flycast-debugger
 // else
-//   /usr/local/share/flycast
-//   /usr/share/flycast
+//   /usr/local/share/flycast-debugger
+//   /usr/share/flycast-debugger
 // <$FLYCAST_BIOS_PATH>
 // ./
 // ./data
@@ -177,12 +178,12 @@ static std::vector<std::string> find_system_data_dirs()
 		xdg_home = (std::string)nowide::getenv("HOME") + "/.local/share";
 	if (!xdg_home.empty())
 		// XDG data locations
-		dirs.push_back(xdg_home + "/flycast/");
+		dirs.push_back(xdg_home + "/flycast-debugger/");
 
 	if (nowide::getenv("XDG_DATA_DIRS") != nullptr)
 	{
 		std::string path = (std::string)nowide::getenv("XDG_DATA_DIRS");
-		addDirectoriesFromPath(dirs, path, "/flycast/");
+		addDirectoriesFromPath(dirs, path, "/flycast-debugger/");
 	}
 	else
 	{
@@ -190,8 +191,8 @@ static std::vector<std::string> find_system_data_dirs()
 		const std::string data_dir(FLYCAST_DATADIR);
 		dirs.push_back(data_dir);
 #endif
-		dirs.push_back("/usr/local/share/flycast/");
-		dirs.push_back("/usr/share/flycast/");
+		dirs.push_back("/usr/local/share/flycast-debugger/");
+		dirs.push_back("/usr/share/flycast-debugger/");
 	}
 	if (nowide::getenv("FLYCAST_BIOS_PATH") != nullptr)
 	{
@@ -259,6 +260,14 @@ int main(int argc, char* argv[])
 
 	common_linux_setup();
 
+#ifdef QT_DEBUGGER
+	/**
+	 * Have to init before everything else does so QApplication can strip Qt
+	 * specific flags from argv so Flycast doesn't complain
+	 */
+	qdbg::init(argc, argv);
+#endif
+
 	if (flycast_init(argc, argv))
 		die("Flycast initialization failed\n");
 
@@ -266,7 +275,15 @@ int main(int argc, char* argv[])
 	auto async = std::async(std::launch::async, uploadCrashes, "/tmp");
 #endif
 
+#ifdef QT_DEBUGGER
+	qdbg::show();
+#endif
+
 	mainui_loop();
+
+#ifdef QT_DEBUGGER
+	qdbg::uninit();
+#endif
 
 	flycast_term();
 	os_UninstallFaultHandler();

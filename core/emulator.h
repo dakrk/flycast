@@ -150,6 +150,12 @@ public:
 		return state == Running;
 	}
 	/**
+	 * Return whether the emulator has at least loaded.
+	 */
+	bool loaded() const {
+		return state == Loaded || state == Running;
+	}
+	/**
 	 * Wait for the next frame and render it. If in single-thread mode, it will run the emulator until a frame is rendered.
 	 */
 	bool render();
