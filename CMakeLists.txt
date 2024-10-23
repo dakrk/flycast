@@ -1474,7 +1474,7 @@ if(ENABLE_GDB_SERVER)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE GDB_SERVER)
 endif()
 
-if(USE_QT_DEBUGGER AND NOT LIBRETRO)
+if(USE_QT_DEBUGGER)
 	if(NOT LUA_FOUND)
 		# Well... not *yet* anyway
 		message(FATAL_ERROR "Qt debugger requires that Lua is available.")
@@ -1485,6 +1485,7 @@ if(USE_QT_DEBUGGER AND NOT LIBRETRO)
 	target_sources(${PROJECT_NAME} PRIVATE
 		core/ui/debugger/debugger.cpp
 		core/ui/debugger/MainWindow.cpp
+		core/ui/debugger/SH4RegistersWidget.cpp
 	)
 
 	target_compile_definitions(${PROJECT_NAME} PRIVATE QT_DEBUGGER)

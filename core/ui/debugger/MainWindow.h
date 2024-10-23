@@ -1,10 +1,13 @@
 #pragma once
+#include <QDockWidget>
 #include <QMainWindow>
 #include <QToolBar>
 #include "emulator.h"
 #include "debug/debug_agent.h"
 
 namespace qdbg {
+
+class SH4RegistersWidget;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -28,10 +31,10 @@ private:
 	void saveSettings();
 
 	QAction* actionSuspend;
-
 	QToolBar* toolBar;
 
-	DebugAgent debugAgent;
+	SH4RegistersWidget* sh4Registers;
+	QDockWidget* dockSH4Registers;
 };
 
 } // namespace qdbg
