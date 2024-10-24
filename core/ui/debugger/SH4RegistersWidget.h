@@ -53,18 +53,12 @@ class SH4RegistersControlTab : public SH4RegistersAbstractTab {
 	QLabel *lblRM, *lblFPSCR;
 	QCheckBox *cbDN, *cbPR;
 	QCheckBox *cbSZ, *cbFR;
-	
-	QLabel *lblFInexact, *lblFUnderflow;
-	QLabel *lblFOverflow, *lblFDivByZero;
-	QLabel *lblFInvalidOp;
-
-	QLabel *lblEInexact, *lblEUnderflow;
-	QLabel *lblEOverflow, *lblEDivByZero;
-	QLabel *lblEInvalidOp;
-
-	QLabel *lblCInexact, *lblCUnderflow;
-	QLabel *lblCOverflow, *lblCDivByZero;
-	QLabel *lblCInvalid, *lblCFPUErr;
+	QCheckBox *cbFInexact, *cbEInexact, *cbCInexact;
+	QCheckBox *cbFUnderflow, *cbEUnderflow, *cbCUnderflow;
+	QCheckBox *cbFOverflow, *cbEOverflow, *cbCOverflow;
+	QCheckBox *cbFDivByZero, *cbEDivByZero, *cbCDivByZero;
+	QCheckBox *cbFInvalid, *cbEInvalid, *cbCInvalid;
+	QCheckBox *cbCFPUErr;
 public:
 	explicit SH4RegistersControlTab(QWidget* parent = nullptr);
 	void fetch() override;

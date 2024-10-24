@@ -30,7 +30,12 @@ private:
 	void restoreSettings();
 	void saveSettings();
 
+	bool lastState;
+
 	QAction* actionSuspend;
+	QAction* actionStep;
+	QAction* actionStepOver;
+	QAction* actionStepOut;
 	QToolBar* toolBar;
 
 	SH4RegistersWidget* sh4Registers;

@@ -1294,6 +1294,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 		core/stdclass.cpp
 		core/stdclass.h
 		core/types.h
+		core/debug/debug_agent.h
 		core/debug/gdb_server.h)
 
 target_sources(${PROJECT_NAME} PRIVATE
@@ -1484,9 +1485,13 @@ if(USE_QT_DEBUGGER)
 	
 	target_sources(${PROJECT_NAME} PRIVATE
 		core/ui/debugger/debugger.cpp
+		core/ui/debugger/debugger.h
 		core/ui/debugger/MainWindow.cpp
+		core/ui/debugger/MainWindow.h
 		core/ui/debugger/SH4RegistersWidget.cpp
+		core/ui/debugger/SH4RegistersWidget.h
 		core/ui/debugger/utils.cpp
+		core/ui/debugger/utils.h
 	)
 
 	target_compile_definitions(${PROJECT_NAME} PRIVATE QT_DEBUGGER)

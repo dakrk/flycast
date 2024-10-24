@@ -20,7 +20,7 @@ jobs:
             pkginstall: sudo pkgin update && sudo pkgin -y install alsa-lib ccache cmake gcc12 git libao libzip lua54 miniupnpc ninja-build pkgconf pulseaudio SDL2 qt6 && export PATH=/usr/pkg/gcc12/bin:$PATH
           - operating_system: openbsd
             version: '7.5'
-            pkginstall: sudo pkg_add ccache cmake git libao libzip miniupnpc ninja pkgconf pulseaudio sdl2 qt6
+            pkginstall: sudo pkg_add ccache cmake git libao libzip miniupnpc ninja pkgconf pulseaudio sdl2 lua54 qt6
         exclude:
           - architecture: arm64
 

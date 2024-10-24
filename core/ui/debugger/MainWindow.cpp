@@ -18,7 +18,8 @@
 namespace qdbg {
 
 MainWindow::MainWindow(QWidget* parent) :
-	QMainWindow(parent)
+	QMainWindow(parent),
+	lastState(false)
 {
 	restoreSettings();
 
@@ -29,7 +30,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	EventManager::listen(Event::VBlank, emuEventCallback, this);
 
 	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
-	fileMenu->addAction(QIcon::fromTheme("document-open"), tr("&Open Game"), QKeySequence::Open, this, &MainWindow::openGame);
+	fileMenu->addAction(QIcon::fromTheme("document-open"), tr("&Open game"), QKeySequence::Open, this, &MainWindow::openGame);
 
 	QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
 	helpMenu->addAction(tr("About Qt"), this, [this]() { QMessageBox::aboutQt(this); });
@@ -37,12 +38,19 @@ MainWindow::MainWindow(QWidget* parent) :
 	actionSuspend = new QAction();
 	actionSuspend->setCheckable(emu.loaded());
 
+	actionStep = new QAction(tr("Step"));
+	actionStepOver = new QAction(tr("Step over"));
+	actionStepOut = new QAction(tr("Step out"));
+
 	// Setting objectName required for Qt to save state for toolbars and dockwidgets
 	toolBar = new QToolBar(tr("State"));
+	toolBar->setObjectName("stateToolbar");
 	toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	toolBar->addAction(actionSuspend);
-	toolBar->setObjectName("stateToolbar");
-
+	toolBar->addAction(actionStep);
+	toolBar->addAction(actionStepOver);
+	toolBar->addAction(actionStepOut);
+	
 	sh4Registers = new SH4RegistersWidget();
 
 	dockSH4Registers = new QDockWidget(tr("SH-4 Registers"));
@@ -89,7 +97,12 @@ void MainWindow::emuEventCallback(Event event, void* arg) {
 	MainWindow* that = static_cast<MainWindow*>(arg);
 	that->actionSuspend->setCheckable(event != Event::Terminate);
 	that->sh4Registers->fetch();
-	that->stateChanged(emu.running());
+
+	bool running = emu.running();
+	if (running != that->lastState) {
+		that->stateChanged(running);
+		that->lastState = running;
+	}
 }
 
 void MainWindow::setState(bool run) {
@@ -108,6 +121,9 @@ void MainWindow::stateChanged(bool running) {
 	}
 
 	actionSuspend->setChecked(running);
+	actionStep->setDisabled(running);
+	actionStepOver->setDisabled(running);
+	actionStepOut->setDisabled(running);
 }
 
 void MainWindow::restoreSettings() {
