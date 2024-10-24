@@ -18,7 +18,9 @@
 #define __STDC_FORMAT_MACROS 1
 #endif
 #include "build.h"
+#ifdef QT_DEBUGGER
 #include "ui/debugger/debugger.h"
+#endif
 #ifdef TARGET_UWP
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Globalization.DateTimeFormatting.h>

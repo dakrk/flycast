@@ -3,7 +3,9 @@
 #endif
 
 #if defined(__unix__)
+#ifdef QT_DEBUGGER
 #include "ui/debugger/debugger.h"
+#endif
 #include "types.h"
 #include "log/LogManager.h"
 #include "emulator.h"

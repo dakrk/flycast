@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	connect(actionSuspend, &QAction::triggered, this, &MainWindow::setState);
 
+	setCentralWidget(new QWidget());
+
 	addToolBar(toolBar);
 	addDockWidget(Qt::RightDockWidgetArea, dockSH4Registers);
 
@@ -86,11 +88,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
 void MainWindow::emuEventCallback(Event event, void* arg) {
 	MainWindow* that = static_cast<MainWindow*>(arg);
 	that->actionSuspend->setCheckable(event != Event::Terminate);
-
-	if (event == Event::VBlank) {
-		that->sh4Registers->fetch();
-	}
-
+	that->sh4Registers->fetch();
 	that->stateChanged(emu.running());
 }
 

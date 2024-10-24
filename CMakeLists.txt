@@ -76,7 +76,7 @@ if(IOS AND NOT LIBRETRO)
 	set(USE_VULKAN OFF CACHE BOOL "Force vulkan off" FORCE)
 endif()
 
-if(ANDROID OR IOS OR LIBRETRO OR WINDOWS_STORE)
+if(ANDROID OR IOS OR LIBRETRO OR WINDOWS_STORE OR NINTENDO_SWITCH)
 	set(USE_QT_DEBUGGER OFF CACHE BOOL "Force Qt debugger off" FORCE)
 endif()
 
@@ -1486,6 +1486,7 @@ if(USE_QT_DEBUGGER)
 		core/ui/debugger/debugger.cpp
 		core/ui/debugger/MainWindow.cpp
 		core/ui/debugger/SH4RegistersWidget.cpp
+		core/ui/debugger/utils.cpp
 	)
 
 	target_compile_definitions(${PROJECT_NAME} PRIVATE QT_DEBUGGER)

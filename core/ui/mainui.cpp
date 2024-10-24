@@ -17,7 +17,9 @@
     along with Flycast.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#ifdef QT_DEBUGGER
 #include "debugger/debugger.h"
+#endif
 #include "mainui.h"
 #include "hw/pvr/Renderer_if.h"
 #include "gui.h"
