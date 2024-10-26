@@ -9,6 +9,7 @@
 #include "MainWindow.h"
 #include "SH4RegistersWidget.h"
 #include "ui/gui.h"
+#include "debug/debug_agent.h"
 
 /**
  * Code formatting inconsistent with the wider Flycast codebase but changing
@@ -59,6 +60,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	dockSH4Registers->setObjectName("dockSH4Registers");
 
 	connect(actionSuspend, &QAction::triggered, this, &MainWindow::setState);
+	connect(actionStep, &QAction::triggered, this, &MainWindow::step);
 
 	setCentralWidget(new QWidget());
 
@@ -87,6 +89,10 @@ void MainWindow::openGame() {
 	if (!path.isEmpty()) {
 		gui_start_game(path.toStdString());
 	}
+}
+
+void MainWindow::step() {
+	emu.step();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {

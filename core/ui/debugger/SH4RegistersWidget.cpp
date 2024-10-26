@@ -271,6 +271,7 @@ SH4RegistersControlTab::SH4RegistersControlTab(QWidget* parent) :
 	ADD_FPSCR_CHECKBOX_TRIPLET(fpscrFlagTableLayout, Invalid, 4);
 	fpscrFlagTableLayout->addWidget(newBoldLabel("FPU Error"), 5, 0);
 	fpscrFlagTableLayout->addWidget(cbCFPUErr, 5, 3);
+	fpscrFlagTableLayout->setColumnStretch(3, 1);
 	fpscrFlagTableLayout->setVerticalSpacing(3);
 
 	QVBoxLayout* mainLayout = new QVBoxLayout();

@@ -830,6 +830,9 @@ void Emulator::step()
 	// FIXME single thread is better
 	singleStep = true;
 	start();
+	// start() doesn't actually resume emulation when not using threaded emulation
+	if (!config::ThreadedRendering)
+		run();
 	stop();
 }
 
@@ -838,6 +841,8 @@ void Emulator::stepRange(u32 from, u32 to)
 	stepRangeFrom = from;
 	stepRangeTo = to;
 	start();
+	if (!config::ThreadedRendering)
+		run();
 	stop();
 }
 

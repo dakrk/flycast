@@ -3,7 +3,6 @@
 #include <QMainWindow>
 #include <QToolBar>
 #include "emulator.h"
-#include "debug/debug_agent.h"
 
 namespace qdbg {
 
@@ -17,6 +16,7 @@ public:
 
 public slots:
 	void openGame();
+	void step();
 
 protected:
 	void closeEvent(QCloseEvent* event) override;
