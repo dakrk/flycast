@@ -1294,6 +1294,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 		core/stdclass.cpp
 		core/stdclass.h
 		core/types.h
+		core/debug/debug_agent.cpp
 		core/debug/debug_agent.h
 		core/debug/gdb_server.h)
 

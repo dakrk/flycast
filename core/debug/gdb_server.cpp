@@ -115,7 +115,7 @@ public:
 		if (thread.joinable())
 		{
 			DEBUG_LOG(COMMON, "GdbServer stopping");
-			agent.resetAgent();
+			debugAgent.resetAgent();
 			stopRequested = true;
 			thread.join();
 		}
@@ -130,7 +130,7 @@ public:
 	{
 		if (!attached)
 			return;
-		agent.debugTrap(event);
+		debugAgent.debugTrap(event);
 		reportException();
 		postDebugTrapNeeded = true;
 		throw Stop();
@@ -211,7 +211,7 @@ private:
 			{
 				postDebugTrapNeeded = false;
 				try {
-					agent.postDebugTrap();
+					debugAgent.postDebugTrap();
 				} catch (const FlycastException& e) {
 					throw Error(e.what());
 				}
@@ -247,7 +247,7 @@ private:
 				break;
 			case 'D':	// Detach GDB from the remote system
 				sendPacket("OK");
-				agent.detach();
+				debugAgent.detach();
 				break;
 			case 'F':	// File-I/O protocol extension not currently supported
 				break;;
@@ -266,7 +266,7 @@ private:
 				sendPacket("");
 				break;
 			case 'k':	// Kill request. Stop process/system
-				agent.kill();
+				debugAgent.kill();
 				break;
 			case 'm':	// Read length addressable memory units
 				readMem(packet);
@@ -333,7 +333,7 @@ private:
 	void reportException()
 	{
 		char s[4];
-		sprintf(s, "S%02X", agent.currentException());
+		sprintf(s, "S%02X", debugAgent.currentException());
 		sendPacket(s);
 	}
 
@@ -345,7 +345,7 @@ private:
 		}
 
 		if (pkt == "c")
-			agent.doContinue();
+			debugAgent.doContinue();
 		else
 		{
 			// Get the pc at which to resume
@@ -355,14 +355,14 @@ private:
 				WARN_LOG(COMMON, "Continue address invalid %s", pkt.c_str());
 				return;
 			}
-			agent.doContinue(addr);
+			debugAgent.doContinue(addr);
 		}
 	}
 
 	void readAllRegs()
 	{
 		u32 *regs;
-		int c = agent.readAllRegs(&regs);
+		int c = debugAgent.readAllRegs(&regs);
 		std::string outpkt;
 		for (int i = 0; i < c; i++)
 			outpkt += pack(regs[i]);
@@ -375,7 +375,7 @@ private:
 		for (auto it = pkt.begin() + 1; it <= pkt.end() - 8; it += 8)
 			regs.push_back(unpack(&*it, 8));
 
-		agent.writeAllRegs(regs);
+		debugAgent.writeAllRegs(regs);
 		sendPacket("OK");
 	}
 
@@ -389,7 +389,7 @@ private:
 			sendPacket("E01");
 			return;
 		}
-		const u8 *mem = agent.readMem(addr, len);
+		const u8 *mem = debugAgent.readMem(addr, len);
 		std::string outpkt;
 		for (u32 i = 0; i < len; i++)
 		{
@@ -418,7 +418,7 @@ private:
 			sscanf(p,"%2x", &b);
 			data[i] = (u8)b;
 		}
-		agent.writeMem(addr, data);
+		debugAgent.writeMem(addr, data);
 		sendPacket("OK");
 	}
 
@@ -444,7 +444,7 @@ private:
 			}
 			data.push_back(b);
 		}
-		agent.writeMem(addr, data);
+		debugAgent.writeMem(addr, data);
 		sendPacket("OK");
 	}
 
@@ -457,7 +457,7 @@ private:
 			sendPacket("E01");
 			return;
 		}
-		u32 v = agent.readReg(regNum);
+		u32 v = debugAgent.readReg(regNum);
 		sendPacket(pack(v));
 	}
 
@@ -471,7 +471,7 @@ private:
 			sendPacket("E01");
 			return;
 		}
-		agent.writeReg(regNum, unpack(vstr, 8));
+		debugAgent.writeReg(regNum, unpack(vstr, 8));
 		sendPacket("OK");
 	}
 
@@ -514,7 +514,7 @@ private:
 			else if (customCmd == "stack")
 			{
 				u32 len;
-				const u32 *data = agent.getStack(len);
+				const u32 *data = debugAgent.getStack(len);
 				len /= 4;
 
 #if _MSC_VER // Non-const array size is a GCC extension
@@ -651,13 +651,13 @@ private:
 		{
 			if (pkt != "vRun;")
 				WARN_LOG(COMMON, "unexpected vRun args ignored: %s", pkt.c_str());
-			agent.restart();
+			debugAgent.restart();
 			sendPacket("S05");
 		}
 		else if (pkt.rfind("vKill", 0) == 0)
 		{
 			sendPacket("OK");
-			agent.kill();
+			debugAgent.kill();
 		}
 		else
 		{
@@ -668,13 +668,13 @@ private:
 
 	void restart()
 	{
-		agent.restart();
+		debugAgent.restart();
 	}
 
 	void step(u32 what = 0)
 	{
 		try {
-			agent.step();
+			debugAgent.step();
 			sendPacket("S05");
 		} catch (const FlycastException& e) {
 			throw Error(e.what());
@@ -685,7 +685,7 @@ private:
 	{
 		try {
 			sendPacket("OK");
-			agent.stepRange(from, to);
+			debugAgent.stepRange(from, to);
 			sendPacket("S05");
 		} catch (const FlycastException& e) {
 			throw Error(e.what());
@@ -703,7 +703,7 @@ private:
 		}
 		switch (type) {
 			case DebugAgent::Breakpoint::BP_TYPE_SOFTWARE_BREAK:		// soft bp
-		    	if (agent.insertMatchpoint(DebugAgent::Breakpoint::BP_TYPE_SOFTWARE_BREAK,
+		    	if (debugAgent.insertMatchpoint(DebugAgent::Breakpoint::BP_TYPE_SOFTWARE_BREAK,
 		    			addr, len))
 		    		sendPacket("OK");
 		    	else
@@ -907,7 +907,7 @@ private:
 	u32 agentInterrupt()
 	{
 		try {
-			return agent.interrupt();
+			return debugAgent.interrupt();
 		} catch (const FlycastException& e) {
 			throw Error(e.what());
 		}
@@ -921,8 +921,6 @@ private:
 	sock_t clientSocket = INVALID_SOCKET;
 	std::thread thread;
 	std::mutex outMutex;
-public:
-	DebugAgent agent;
 };
 
 static GdbServer gdbServer;
@@ -944,12 +942,12 @@ void debugTrap(u32 event)
 
 void subroutineCall()
 {
-	gdbServer.agent.subroutineCall();
+	debugAgent.subroutineCall();
 }
 
 void subroutineReturn()
 {
-	gdbServer.agent.subroutineReturn();
+	debugAgent.subroutineReturn();
 }
 
 static void emuEventCallback(Event event, void *)

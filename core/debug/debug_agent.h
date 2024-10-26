@@ -345,3 +345,5 @@ public:
 	std::map<u32, Breakpoint> breakpoints[Breakpoint::Type::BP_TYPE_COUNT];
 	std::vector<std::pair<u32, u32>> stack;
 };
+
+extern DebugAgent debugAgent;
