@@ -30,18 +30,27 @@ MainWindow::MainWindow(QWidget* parent) :
 	EventManager::listen(Event::Terminate, emuEventCallback, this);
 	EventManager::listen(Event::VBlank, emuEventCallback, this);
 
-	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
-	fileMenu->addAction(QIcon::fromTheme("document-open"), tr("&Open game"), QKeySequence::Open, this, &MainWindow::openGame);
-
-	QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
-	helpMenu->addAction(tr("About Qt"), this, [this]() { QMessageBox::aboutQt(this); });
-
 	actionSuspend = new QAction();
 	actionSuspend->setCheckable(emu.loaded());
 
 	actionStep = new QAction(tr("Step"));
+	actionStep->setAutoRepeat(true);
+	actionStep->setShortcut(Qt::Key_F7);
+
 	actionStepOver = new QAction(tr("Step over"));
 	actionStepOut = new QAction(tr("Step out"));
+
+	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
+	fileMenu->addAction(QIcon::fromTheme("document-open"), tr("&Open game"), QKeySequence::Open, this, &MainWindow::openGame);
+
+	QMenu* stateMenu = menuBar()->addMenu(tr("&State"));
+	stateMenu->addAction(actionSuspend);
+	stateMenu->addAction(actionStep);
+	stateMenu->addAction(actionStepOver);
+	stateMenu->addAction(actionStepOut);
+
+	QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
+	helpMenu->addAction(tr("About Qt"), this, [this]() { QMessageBox::aboutQt(this); });
 
 	// Setting objectName required for Qt to save state for toolbars and dockwidgets
 	toolBar = new QToolBar(tr("State"));
